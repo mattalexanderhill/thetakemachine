@@ -1,0 +1,32 @@
+{{#*inline "page"}}
+
+<section class="bg-white">
+  <div class="content-wrapper">
+    <h1 class="f3">Questions</h1>
+    <form action="/quiz/questions" method="POST">
+    
+{{#each questions}}
+      <div class="quiz-question">
+        <div class="quiz-question-header">
+          {{ number }}) {{ text }}
+        </div>
+        <div class="quiz-question-body">
+  {{#each answers}}
+          <input
+            type="radio"
+            id="q{{ ../id }}"
+            name="{{ ../id }}"
+            value="{{ id }}">
+          <label for="q{{ ../id }}">{{ text }}</label>
+  {{/each}}
+        </div>
+      </div>
+{{/each}}
+  
+    </form>
+  </div>
+
+</section>
+
+{{/inline}}
+{{~> (parent)~}}
