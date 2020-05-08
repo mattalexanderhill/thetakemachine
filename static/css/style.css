@@ -1,27 +1,78 @@
-.navbar{
-  height: 100px;
-  min-height: 100px;
+.head {
+  background-color: #ddd;
+  color:            #e4d9ff;
+  font-size:        2.25rem;
+  padding:          1rem;
+  font-family:      athelas, georgia, serif;
+  vertical-align:   middle;
+}
+
+.main {
+  color:            rgba( 0, 0, 0, .7 );
+  font-family:      athelas, georgia, serif;
 }
 
 .content-wrapper {
+  display:      block;
   margin-left:  auto;
   margin-right: auto;
+  padding:      1rem;
 }
 
-@media screen and (min-width: 55em) {
+@media screen and (min-width: 45em) {
   .content-wrapper {
     float:        left;
-    display:      block;
-    margin-left:  20%;
-    margin-right: 20%;
-    width:        60%;
+    margin-left:  15%;
+    margin-right: 15%;
+    width:        70%;
   }
 }
 
-.quiz-question-header {
-
+.h-sub {
+  font-size: 1.5rem;
 }
 
-.quiz-question-body {
-  
+.pa-t {
+  padding: 0.5rem 0;
+}
+
+@media screen and (min-width: 45em) {
+  .pa-t {
+    padding: 0.5rem;
+  }
+}
+
+.qu {
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-color:        rgba( 0, 0, 0, .2 );
+}
+
+.qu:last-of-type {
+  border: none;
+}
+
+.qu-t {
+  font-weight: bold;
+}
+
+.qu-as {
+}
+
+.qu-a {
+    display: inline-block;
+    width:   45%;
+}
+
+@media screen and (min-width: 45em) {
+  .qu-a {
+    display: inline-block;
+    width:   22%;
+  }
+}
+
+.qu-b {
+  display:      block;
+  margin-left:  auto;
+  margin-right: 1rem;
 }

@@ -8,7 +8,6 @@ pub struct Question {
   pub id: u32,
   pub number: u32,
   pub text: String,
-  pub page: u32,
 }
 
 pub fn count(conn: &PgConnection) -> QueryResult<i64> {

@@ -1,32 +1,33 @@
 {{#*inline "page"}}
 
-<section class="bg-white">
-  <div class="content-wrapper">
-    <h1 class="f3">Questions</h1>
-    <form action="/quiz/questions" method="POST">
-    
+<div class="content-wrapper">
+  <h1 class="h-sub">Questions</h1>
+  <form action="/quiz/questions" method="POST">
 {{#each questions}}
-      <div class="quiz-question">
-        <div class="quiz-question-header">
-          {{ number }}) {{ text }}
-        </div>
-        <div class="quiz-question-body">
-  {{#each answers}}
-          <input
-            type="radio"
-            id="q{{ ../id }}"
-            name="{{ ../id }}"
-            value="{{ id }}">
-          <label for="q{{ ../id }}">{{ text }}</label>
-  {{/each}}
-        </div>
+    <div class="qu pa-t">
+      <div class="qu-t pa-t">
+        {{ number }}) {{ text }}
       </div>
+      <div class="pa-t">
+  {{#each answers}}
+        <div class="qu-a">
+          <input
+            required
+            type="radio"
+            id="a_{{ id }}"
+            value="{{ id }}"
+            name="q_{{ ../id }}">
+          <label for="a_{{ id }}">{{ text }}</label>
+        </div>
+  {{/each}}
+      </div>
+    </div>
 {{/each}}
-  
-    </form>
-  </div>
-
-</section>
+  <button class="qu-b" type="submit">
+    Submit
+  </button>
+  </form>
+</div>
 
 {{/inline}}
 {{~> (parent)~}}

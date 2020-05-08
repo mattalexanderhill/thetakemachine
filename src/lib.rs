@@ -19,13 +19,15 @@ pub fn wgafoy() -> Rocket {
     dotenv::dotenv().ok();
     rocket::custom(config::from_env())
         .mount("/", routes![
-            routes::index,
-            routes::favicon,
-            routes::quiz::index,
-            routes::quiz::questions,
+            routes::get_index,
+            routes::get_favicon,
+            routes::quiz::get_index,
+            routes::quiz::get_questions,
+            routes::quiz::post_questions,
         ])
         .register(catchers![
             routes::catch::not_found,
+            routes::catch::server_error,
         ])
         .mount("/assets", StaticFiles::from("static"))
         .attach(db::Conn::fairing())

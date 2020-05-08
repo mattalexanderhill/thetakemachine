@@ -3,8 +3,9 @@ table! {
         id -> Int4,
         text -> Varchar,
         question -> Int4,
-        score_x -> Int4,
-        score_y -> Int4,
+        display -> Int4,
+        score_x -> Nullable<Int4>,
+        score_y -> Nullable<Int4>,
     }
 }
 
@@ -13,7 +14,6 @@ table! {
         id -> Int4,
         number -> Int4,
         text -> Varchar,
-        page -> Int4,
     }
 }
 

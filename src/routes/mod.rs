@@ -10,11 +10,11 @@ struct TemplateContext {
 }
 
 #[get("/")]
-pub fn index() -> Redirect {
+pub fn get_index() -> Redirect {
     Redirect::to("/quiz")
 }
 
 #[get("/favicon.ico")]
-pub fn favicon() -> Redirect {
+pub fn get_favicon() -> Redirect {
     Redirect::to("/assets/imgs/favicon.ico")
 }

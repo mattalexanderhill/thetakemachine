@@ -1,4 +1,6 @@
 use itertools::Itertools;
+use rocket::request::{Form, FromForm, FormItems};
+use rocket::response::Redirect;
 use rocket::http::Status;
 use rocket_contrib::templates::Template;
 use crate::models::question_answers::{QuestionAnswer, load_all};
@@ -10,7 +12,7 @@ struct IndexContext {
 }
 
 #[get("/quiz")]
-pub fn index() -> Template {
+pub fn get_index() -> Template {
     let context = IndexContext { parent: "layout" };
     Template::render("quiz/index", &context)
 }
@@ -36,7 +38,7 @@ struct QuestionsContext {
 }
 
 #[get("/quiz/questions")]
-pub fn questions(conn: Conn) -> Result<Template, Status> {
+pub fn get_questions(conn: Conn) -> Result<Template, Status> {
     let questions = load_all(&conn).unwrap_or(vec![]);
 
     if questions.is_empty() {
@@ -68,4 +70,49 @@ pub fn questions(conn: Conn) -> Result<Template, Status> {
     };
 
     Ok(Template::render("quiz/questions", &context))
+}
+
+#[derive(Debug)]
+pub struct QuestionResponse {
+    question_id: u32,
+    answer_id: u32,
+}
+
+#[derive(Debug)]
+pub struct QuestionsResponse {
+    responses: Vec<QuestionResponse>,
+}
+
+impl<'a> FromForm<'a> for QuestionsResponse {
+    type Error = &'static str;
+
+    fn from_form(items: &mut FormItems<'a>, strict: bool) -> Result<QuestionsResponse, &'static str> {
+        let mut responses = Vec::new();
+
+        for item in items {
+            responses.push(QuestionResponse {
+                question_id: item.key
+                    .as_str()
+                    .trim_start_matches("q_")
+                    .parse::<u32>()
+                    .map_err(|_| "invalid form response")?,
+                answer_id: item.value
+                    .as_str()
+                    .parse::<u32>()
+                    .map_err(|_| "invalid form response")?,
+            });
+        }
+
+        Ok(QuestionsResponse { responses })
+    }
+}
+
+#[post("/quiz/questions", data="<answers>")]
+pub fn post_questions(
+    conn: Conn,
+    answers: Form<QuestionsResponse>
+) -> Redirect {
+    println!("{:?}", answers);
+
+    Redirect::to("/quiz")
 }
