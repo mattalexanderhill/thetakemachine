@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="-120 -120 240 240" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="">
+  <defs>
+    <marker
+      id="arrow"
+      viewBox="0 0 10 10"
+      refX="5"
+      refY="5"
+      markerWidth="6"
+      markerHeight="6"
+      orient="auto-start-reverse">
+      <path d="M0,0L10,5L0,10z" />
+    </marker>
+  </defs>
+
+  <style>
+    .grid {
+      fill:         none;
+      stroke:       #ddd;
+      stroke-width: 0.7px;
+    }
+    .grid > rect {
+      stroke-width: 1px;
+      stroke:       #999;
+    }
+    .quadrant {
+      fill-opacity: 0.8;
+    }
+    .quadrant > rect.ne  { fill: #57bff7; }
+    .quadrant > rect.se  { fill: #e33ff8; }
+    .quadrant > rect.sw  { fill: #65f86d; }
+    .quadrant > rect.nw  { fill: #e84c52; }
+    .arrow {
+      stroke:       black;
+      stroke-width: 1.5px;
+    }
+  </style> 
+  <g class="quadrant">
+    <rect class="nw" x="-100" y="-100" width="100" height="100" />
+    <rect class="se" x="0"    y="0"    width="100" height="100" />
+    <rect class="sw" x="-100" y="0"    width="100" height="100" />
+    <rect class="ne" x="0"    y="-100" width="100" height="100" />
+  </g>
+  <g class="grid">
+    <path d="M-100,-90l200,0" />
+    <path d="M-100,-80l200,0" />
+    <path d="M-100,-70l200,0" />
+    <path d="M-100,-60l200,0" />
+    <path d="M-100,-50l200,0" />
+    <path d="M-100,-40l200,0" />
+    <path d="M-100,-30l200,0" />
+    <path d="M-100,-20l200,0" />
+    <path d="M-100,-10l200,0" />
+    <path d="M-100,0l200,0"   />
+    <path d="M-100,10l200,0"  />
+    <path d="M-100,20l200,0"  />
+    <path d="M-100,30l200,0"  />
+    <path d="M-100,40l200,0"  />
+    <path d="M-100,50l200,0"  />
+    <path d="M-100,60l200,0"  />
+    <path d="M-100,70l200,0"  />
+    <path d="M-100,80l200,0"  />
+    <path d="M-100,90l200,0"  />
+    <path d="M-90,-100l0,200" />
+    <path d="M-80,-100l0,200" />
+    <path d="M-70,-100l0,200" />
+    <path d="M-60,-100l0,200" />
+    <path d="M-50,-100l0,200" />
+    <path d="M-40,-100l0,200" />
+    <path d="M-30,-100l0,200" />
+    <path d="M-20,-100l0,200" />
+    <path d="M-10,-100l0,200" />
+    <path d="M0,-100l0,200"   />
+    <path d="M10,-100l0,200"  />
+    <path d="M20,-100l0,200"  />
+    <path d="M30,-100l0,200"  />
+    <path d="M40,-100l0,200"  />
+    <path d="M50,-100l0,200"  />
+    <path d="M60,-100l0,200"  />
+    <path d="M70,-100l0,200"  />
+    <path d="M80,-100l0,200"  />
+    <path d="M90,-100l0,200"  />
+    <rect x="-100" y="-100" width="200" height="200" />
+  </g>
+  <g class="arrow">
+    <path
+      d="M0,0L{{ x }},{{ y }}"
+      marker-end="url(#arrow)" />
+  </g>
+</svg>

@@ -1,10 +1,19 @@
-use itertools::Itertools;
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
+
 use rocket::request::{Form, FromForm, FormItems};
 use rocket::response::Redirect;
-use rocket::http::Status;
+use rocket::http::{ContentType, Status};
+use rocket::response::content::Content;
+
 use rocket_contrib::templates::Template;
-use crate::models::question_answers::{QuestionAnswer, load_all};
+
+use crate::models::questions::load_all;
+use crate::models::answers::Answer;
+use crate::models::question_answers::{QuestionAnswer, store_response};
 use crate::db::Conn;
+
+
+const SESSION_ID_LEN: u8 = 6;
 
 #[derive(Serialize)]
 struct IndexContext {
@@ -19,53 +28,47 @@ pub fn get_index() -> Template {
 
 #[derive(Serialize, Debug)]
 struct QuestionsContextAnswer {
-    id: u32,
+    id: i32,
     text: String,
 }
 
 #[derive(Serialize, Debug)]
 struct QuestionsContextQuestion {
-    id: u32,
+    id: i32,
     text: String,
-    number: u32,
-    answers: Vec<QuestionsContextAnswer>,
+    number: i32,
 }
 
 #[derive(Serialize, Debug)]
 struct QuestionsContext {
     questions: Vec<QuestionsContextQuestion>,
+    answers: Vec<QuestionsContextAnswer>,
     parent: &'static str,
 }
 
 #[get("/quiz/questions")]
 pub fn get_questions(conn: Conn) -> Result<Template, Status> {
-    let questions = load_all(&conn).unwrap_or(vec![]);
+    let questions = load_all(&conn, Some(3)).unwrap_or(vec![]);
 
     if questions.is_empty() {
         return Err(Status::NotFound);
     }
 
-    let mut grouped_questions = Vec::new();
-
-    for (q_id, group) in &questions.into_iter().group_by(|q| q.question_id) {
-        let group: Vec<QuestionAnswer> = group.collect();
-
-        grouped_questions.push(QuestionsContextQuestion {
-            id: q_id,
-            text: group[0].question_text.clone(),
-            number: group[0].question_number,
-            answers: group
-                .into_iter()
-                .map(|a| QuestionsContextAnswer {
-                    id: a.answer_id,
-                    text: a.answer_text,
-                })
-                .collect(),
-        })
-    }
-
     let context = QuestionsContext {
-        questions: grouped_questions,
+        questions: questions
+            .iter()
+            .map(|q| QuestionsContextQuestion {
+                id: q.id,
+                text: q.text.to_owned(),
+                number: q.number
+            })
+            .collect(),
+        answers: Answer::iter()
+            .map(|a| QuestionsContextAnswer {
+                id: a as i32,
+                text: a.to_string(), 
+            })
+            .collect(),
         parent: "layout"
     };
 
@@ -74,8 +77,8 @@ pub fn get_questions(conn: Conn) -> Result<Template, Status> {
 
 #[derive(Debug)]
 pub struct QuestionResponse {
-    question_id: u32,
-    answer_id: u32,
+    question_id: i32,
+    answer: Answer,
 }
 
 #[derive(Debug)]
@@ -86,7 +89,7 @@ pub struct QuestionsResponse {
 impl<'a> FromForm<'a> for QuestionsResponse {
     type Error = &'static str;
 
-    fn from_form(items: &mut FormItems<'a>, strict: bool) -> Result<QuestionsResponse, &'static str> {
+    fn from_form(items: &mut FormItems<'a>, _strict: bool) -> Result<QuestionsResponse, &'static str> {
         let mut responses = Vec::new();
 
         for item in items {
@@ -94,11 +97,9 @@ impl<'a> FromForm<'a> for QuestionsResponse {
                 question_id: item.key
                     .as_str()
                     .trim_start_matches("q_")
-                    .parse::<u32>()
+                    .parse::<i32>()
                     .map_err(|_| "invalid form response")?,
-                answer_id: item.value
-                    .as_str()
-                    .parse::<u32>()
+                answer: Answer::from_str(item.value.as_str())
                     .map_err(|_| "invalid form response")?,
             });
         }
@@ -107,12 +108,100 @@ impl<'a> FromForm<'a> for QuestionsResponse {
     }
 }
 
+fn gen_session_id(len: u8) -> String{
+    let mut rng = thread_rng();
+    (0..len).map(|_| rng.sample(Alphanumeric)).collect()
+}
+
 #[post("/quiz/questions", data="<answers>")]
 pub fn post_questions(
     conn: Conn,
     answers: Form<QuestionsResponse>
 ) -> Redirect {
-    println!("{:?}", answers);
+    let session_id = gen_session_id(SESSION_ID_LEN);
 
-    Redirect::to("/quiz")
+    let question_answers: Vec<QuestionAnswer> = answers
+        .responses
+        .iter()
+        .map(|qr| QuestionAnswer {
+            session_id: session_id.to_owned(),
+            question_id: qr.question_id,
+            answer_id: qr.answer as i32,
+        })
+        .collect();
+
+    store_response(&conn, &question_answers);
+
+    let econ = "50";
+    let soc = "n50";
+
+    Redirect::to(format!("/quiz/results?econ={}&soc={}", econ, soc))
+}
+
+#[derive(Debug, Serialize)]
+struct ResultsContext {
+    econ: String,
+    soc: String,
+    parent: &'static str,
+}
+
+#[get("/quiz/results?<econ>&<soc>")]
+pub fn get_results(econ: String, soc: String) -> Template {
+    let context = ResultsContext {
+        econ: econ,
+        soc: soc,
+        parent: "layout"
+    };
+
+    Template::render("quiz/results", &context)
+}
+
+#[derive(Debug, Serialize)]
+struct ChartContext {
+    x: i32,
+    y: i32
+}
+
+#[get("/quiz/chart/<econ>/<soc>")]
+pub fn get_chart(econ: String, soc: String) -> Content<Template> {
+    let mut econ_n: i32;
+    let mut soc_n: i32;
+
+    if econ.chars().nth(0) == Some('n') {
+        econ_n = econ
+            .trim_start_matches("n")
+            .parse::<i32>()
+            .unwrap_or(0);
+
+        if econ_n > 100 { econ_n = 100; }
+        econ_n = -econ_n;
+    } else {
+        econ_n = econ
+            .parse::<i32>()
+            .unwrap_or(0);
+    }
+
+    if soc.chars().nth(0) == Some('n') {
+        soc_n = soc
+            .trim_start_matches("n")
+            .parse::<i32>()
+            .unwrap_or(0);
+
+        if soc_n > 100 { soc_n = 100; }
+    } else {
+        soc_n = soc
+            .parse::<i32>()
+            .unwrap_or(0);
+        soc_n = -soc_n;
+    }
+
+    let context = ChartContext {
+        x: econ_n,
+        y: soc_n
+    };
+
+    Content(
+        ContentType::SVG,
+        Template::render("quiz/chart", &context)
+    )
 }

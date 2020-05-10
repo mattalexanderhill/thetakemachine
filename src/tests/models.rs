@@ -1,6 +1,18 @@
 use super::utils::*;
 use crate::models::questions;
-use crate::models::question_answers;
+use crate::models::answers;
+
+#[test]
+fn test_answers_iter() {
+    let answers: Vec<String> = answers::Answer::iter()
+        .map(|a| a.to_string())
+        .collect();
+
+    assert_eq!(answers[0], "Agree");
+    assert_eq!(answers[1], "Disagree");
+    assert_eq!(answers[2], "Don't Know");
+    assert_eq!(answers[3], "Don't Care");
+}
 
 #[test]
 fn test_questions_count() {
@@ -11,10 +23,10 @@ fn test_questions_count() {
 }
 
 #[test]
-fn test_all() {
+fn test_questions_all() {
     let conn = test_connection();
 
-    let questions = question_answers::load_all(&conn).unwrap();
+    let questions = questions::load_all(&conn, None).unwrap();
 
-    assert_eq!(questions.len(), 216);
+    assert_eq!(questions.len(), 54);
 }

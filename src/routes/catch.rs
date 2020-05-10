@@ -30,5 +30,5 @@ pub fn server_error(_req: &Request<'_>) -> Template {
         parent: "layout"
     };
 
-    Template::render("error/500", &context)
+    Template::render("errors/500", &context)
 }

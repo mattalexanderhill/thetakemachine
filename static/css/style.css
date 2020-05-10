@@ -12,6 +12,26 @@
   font-family:      athelas, georgia, serif;
 }
 
+.quote {
+  background: #eee;
+  border:     1px solid #ccc;
+  margin:     1.5rem;
+  padding:    1rem;
+}
+
+.quote-text {
+  font-size:   1.2rem;
+  font-weight: normal;
+  font-style:  italic;
+}
+
+.quote-source {
+  font-size:   1rem;
+  font-weight: bold;
+  font-style:  italic;
+  text-align:  right;
+}
+
 .content-wrapper {
   display:      block;
   margin-left:  auto;
@@ -40,6 +60,10 @@
   .pa-t {
     padding: 0.5rem;
   }
+}
+
+.qu-r {
+  
 }
 
 .qu {

@@ -2,10 +2,15 @@ table! {
     answers (id) {
         id -> Int4,
         text -> Varchar,
-        question -> Int4,
-        display -> Int4,
-        score_x -> Nullable<Int4>,
-        score_y -> Nullable<Int4>,
+    }
+}
+
+table! {
+    question_answers (id) {
+        id -> Int4,
+        session_id -> Varchar,
+        question_id -> Int4,
+        answer_id -> Int4,
     }
 }
 
@@ -17,9 +22,11 @@ table! {
     }
 }
 
-joinable!(answers -> questions (question));
+joinable!(question_answers -> answers (answer_id));
+joinable!(question_answers -> questions (question_id));
 
 allow_tables_to_appear_in_same_query!(
     answers,
+    question_answers,
     questions,
 );

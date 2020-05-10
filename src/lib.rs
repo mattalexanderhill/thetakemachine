@@ -4,6 +4,7 @@
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
+extern crate rand;
 extern crate dotenv;
 
 use rocket::Rocket;
@@ -23,6 +24,8 @@ pub fn wgafoy() -> Rocket {
             routes::get_favicon,
             routes::quiz::get_index,
             routes::quiz::get_questions,
+            routes::quiz::get_chart,
+            routes::quiz::get_results,
             routes::quiz::post_questions,
         ])
         .register(catchers![

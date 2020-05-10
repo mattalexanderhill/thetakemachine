@@ -3,21 +3,21 @@
 <div class="content-wrapper">
   <h1 class="h-sub">Questions</h1>
   <form action="/quiz/questions" method="POST">
-{{#each questions}}
+{{#each questions as |q|}}
     <div class="qu pa-t">
       <div class="qu-t pa-t">
         {{ number }}) {{ text }}
       </div>
       <div class="pa-t">
-  {{#each answers}}
+  {{#each @root.answers as |a|}}
         <div class="qu-a">
           <input
             required
             type="radio"
-            id="a_{{ id }}"
-            value="{{ id }}"
-            name="q_{{ ../id }}">
-          <label for="a_{{ id }}">{{ text }}</label>
+            id="q_{{ q.id }}_a_{{ a.id }}"
+            value="{{ a.id }}"
+            name="q_{{ q.id }}">
+          <label for="q_{{ q.id }}_a_{{ a.id }}">{{ a.text }}</label>
         </div>
   {{/each}}
       </div>
