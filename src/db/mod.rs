@@ -4,3 +4,4 @@ use rocket_contrib::databases::diesel;
 pub struct Conn(diesel::PgConnection);
 
 pub mod schema;
+pub mod schema_manual;

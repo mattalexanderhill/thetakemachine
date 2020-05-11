@@ -6,15 +6,6 @@ table! {
 }
 
 table! {
-    question_answers (id) {
-        id -> Int4,
-        session_id -> Varchar,
-        question_id -> Int4,
-        answer_id -> Int4,
-    }
-}
-
-table! {
     questions (id) {
         id -> Int4,
         number -> Int4,
@@ -22,11 +13,34 @@ table! {
     }
 }
 
-joinable!(question_answers -> answers (answer_id));
-joinable!(question_answers -> questions (question_id));
+table! {
+    responses (id) {
+        id -> Int4,
+        session_id -> Varchar,
+        question_id -> Int4,
+        answer_id -> Int4,
+        at -> Timestamp,
+    }
+}
+
+table! {
+    scores (id) {
+        id -> Int4,
+        question_id -> Int4,
+        answer_id -> Int4,
+        x -> Int4,
+        y -> Int4,
+    }
+}
+
+joinable!(responses -> answers (answer_id));
+joinable!(responses -> questions (question_id));
+joinable!(scores -> answers (answer_id));
+joinable!(scores -> questions (question_id));
 
 allow_tables_to_appear_in_same_query!(
     answers,
-    question_answers,
     questions,
+    responses,
+    scores,
 );

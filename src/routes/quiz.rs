@@ -9,7 +9,8 @@ use rocket_contrib::templates::Template;
 
 use crate::models::questions::load_all;
 use crate::models::answers::Answer;
-use crate::models::question_answers::{QuestionAnswer, store_response};
+use crate::models::responses::{Response, store_responses};
+use crate::models::response_scores::load_from_session;
 use crate::db::Conn;
 
 
@@ -41,20 +42,27 @@ struct QuestionsContextQuestion {
 
 #[derive(Serialize, Debug)]
 struct QuestionsContext {
+    session_id: String,
     questions: Vec<QuestionsContextQuestion>,
     answers: Vec<QuestionsContextAnswer>,
     parent: &'static str,
 }
 
+fn gen_session_id(len: u8) -> String{
+    let mut rng = thread_rng();
+    (0..len).map(|_| rng.sample(Alphanumeric)).collect()
+}
+
 #[get("/quiz/questions")]
 pub fn get_questions(conn: Conn) -> Result<Template, Status> {
-    let questions = load_all(&conn, Some(3)).unwrap_or(vec![]);
+    let questions = load_all(&conn, None).unwrap_or(vec![]);
 
     if questions.is_empty() {
         return Err(Status::NotFound);
     }
 
     let context = QuestionsContext {
+        session_id: gen_session_id(SESSION_ID_LEN),
         questions: questions
             .iter()
             .map(|q| QuestionsContextQuestion {
@@ -66,7 +74,7 @@ pub fn get_questions(conn: Conn) -> Result<Template, Status> {
         answers: Answer::iter()
             .map(|a| QuestionsContextAnswer {
                 id: a as i32,
-                text: a.to_string(), 
+                text: a.to_string(),
             })
             .collect(),
         parent: "layout"
@@ -76,84 +84,139 @@ pub fn get_questions(conn: Conn) -> Result<Template, Status> {
 }
 
 #[derive(Debug)]
-pub struct QuestionResponse {
+pub struct QuestionAnswer {
     question_id: i32,
     answer: Answer,
 }
 
 #[derive(Debug)]
-pub struct QuestionsResponse {
-    responses: Vec<QuestionResponse>,
+pub struct QuestionsForm {
+    session_id: String,
+    question_answers: Vec<QuestionAnswer>,
 }
 
-impl<'a> FromForm<'a> for QuestionsResponse {
+impl<'a> FromForm<'a> for QuestionsForm {
     type Error = &'static str;
 
-    fn from_form(items: &mut FormItems<'a>, _strict: bool) -> Result<QuestionsResponse, &'static str> {
-        let mut responses = Vec::new();
+    fn from_form(items: &mut FormItems<'a>, _strict: bool) -> Result<QuestionsForm, &'static str> {
+        let mut question_answers = Vec::new();
+        let mut session_id = String::with_capacity(SESSION_ID_LEN.into());
 
         for item in items {
-            responses.push(QuestionResponse {
-                question_id: item.key
-                    .as_str()
-                    .trim_start_matches("q_")
-                    .parse::<i32>()
-                    .map_err(|_| "invalid form response")?,
-                answer: Answer::from_str(item.value.as_str())
-                    .map_err(|_| "invalid form response")?,
-            });
+            let (key, value) = item.key_value_decoded();
+
+            if key == "session" {
+                session_id.push_str(&value.trim());
+            } else {
+                question_answers.push(QuestionAnswer {
+                    question_id: key
+                        .trim_start_matches("q_")
+                        .parse::<i32>()
+                        .map_err(|_| "invalid form response")?,
+                    answer: Answer::from_str(&value)
+                        .map_err(|_| "invalid form response")?,
+                });
+            }
         }
 
-        Ok(QuestionsResponse { responses })
+        if session_id.is_empty() { session_id.push_str("_"); }
+
+        Ok(QuestionsForm { session_id, question_answers })
     }
 }
 
-fn gen_session_id(len: u8) -> String{
-    let mut rng = thread_rng();
-    (0..len).map(|_| rng.sample(Alphanumeric)).collect()
-}
 
-#[post("/quiz/questions", data="<answers>")]
+#[post("/quiz/questions", data="<form>")]
 pub fn post_questions(
     conn: Conn,
-    answers: Form<QuestionsResponse>
-) -> Redirect {
-    let session_id = gen_session_id(SESSION_ID_LEN);
-
-    let question_answers: Vec<QuestionAnswer> = answers
-        .responses
+    form: Form<QuestionsForm>
+) -> Result<Redirect, &'static str> {
+    let responses: Vec<Response> = form
+        .question_answers
         .iter()
-        .map(|qr| QuestionAnswer {
-            session_id: session_id.to_owned(),
-            question_id: qr.question_id,
-            answer_id: qr.answer as i32,
+        .map(|qa| Response {
+            session_id: form.session_id.to_owned(),
+            question_id: qa.question_id,
+            answer_id: qa.answer as i32,
         })
         .collect();
 
-    store_response(&conn, &question_answers);
+    store_responses(&conn, &responses).expect("storage error");
 
-    let econ = "50";
-    let soc = "n50";
+    let redirect_uri = if form.session_id.is_empty() {
+        "/quiz/{}/results".to_owned()
+    } else {
+        format!("/quiz/{}/results", form.session_id)
+    };
 
-    Redirect::to(format!("/quiz/results?econ={}&soc={}", econ, soc))
+    print!("{:?}", redirect_uri);
+
+    Ok(Redirect::to(redirect_uri))
 }
 
 #[derive(Debug, Serialize)]
 struct ResultsContext {
-    econ: String,
-    soc: String,
+    x: String,
+    y: String,
     parent: &'static str,
 }
 
-#[get("/quiz/results?<econ>&<soc>")]
-pub fn get_results(econ: String, soc: String) -> Template {
+#[get("/quiz/<session>/results")]
+pub fn get_results(conn: Conn, session: String) -> Result<Template, &'static str> {
+    let mut result: (i64, i64) = (0, 0);
+
+    if session != "_" {
+        let scores = load_from_session(&conn, &session)
+            .expect("db error");
+        let mut x_scores: Vec<i32> = Vec::with_capacity(scores.len());
+        let mut y_scores: Vec<i32> = Vec::with_capacity(scores.len());
+
+        for rs in scores.iter() {
+            match rs.answer {
+                Answer::Agree | Answer::Disagree => {
+                    if let Some(x) = rs.x {
+                        x_scores.push(x);
+                    }
+                    if let Some(y) = rs.y {
+                        y_scores.push(y);
+                    }
+                },
+                Answer::DontCare | Answer::DontKnow => {}
+            }
+        }
+
+        if !x_scores.is_empty() {
+            let sum: i32 = x_scores.iter().sum();
+            result.0 = (f64::from(sum) / (x_scores.len() as f64)) as i64
+        }
+
+        if !y_scores.is_empty() {
+            let sum: i32 = y_scores.iter().sum();
+            result.1 = (f64::from(sum) / (y_scores.len() as f64)) as i64
+        }
+    }
+
+    let (x, y) = result;
+
+    let x_str = if x < 0 {
+        format!("n{}", x.abs())
+    } else {
+        x.to_string()
+    };
+
+    let y_str = if y < 0 {
+        format!("n{}", y.abs())
+    } else {
+        y.to_string()
+    };
+
     let context = ResultsContext {
-        econ: econ,
-        soc: soc,
+        x: x_str,
+        y: y_str,
         parent: "layout"
     };
 
-    Template::render("quiz/results", &context)
+    Ok(Template::render("quiz/results", &context))
 }
 
 #[derive(Debug, Serialize)]
@@ -162,43 +225,36 @@ struct ChartContext {
     y: i32
 }
 
-#[get("/quiz/chart/<econ>/<soc>")]
-pub fn get_chart(econ: String, soc: String) -> Content<Template> {
-    let mut econ_n: i32;
-    let mut soc_n: i32;
+#[get("/quiz/chart/<x_str>/<y_str>")]
+pub fn get_chart(x_str: String, y_str: String) -> Content<Template> {
+    let mut x: i32;
+    let mut y: i32;
 
-    if econ.chars().nth(0) == Some('n') {
-        econ_n = econ
+    if x_str.chars().nth(0) == Some('n') {
+        x = x_str
             .trim_start_matches("n")
             .parse::<i32>()
             .unwrap_or(0);
 
-        if econ_n > 100 { econ_n = 100; }
-        econ_n = -econ_n;
+        if x > 100 { x = 100; }
+        x = -x;
     } else {
-        econ_n = econ
-            .parse::<i32>()
-            .unwrap_or(0);
+        x = x_str.parse::<i32>().unwrap_or(0);
     }
 
-    if soc.chars().nth(0) == Some('n') {
-        soc_n = soc
+    if y_str.chars().nth(0) == Some('n') {
+        y = y_str
             .trim_start_matches("n")
             .parse::<i32>()
             .unwrap_or(0);
 
-        if soc_n > 100 { soc_n = 100; }
+        if y > 100 { y = 100; }
     } else {
-        soc_n = soc
-            .parse::<i32>()
-            .unwrap_or(0);
-        soc_n = -soc_n;
+        y = y_str.parse::<i32>().unwrap_or(0);
+        y = -y;
     }
 
-    let context = ChartContext {
-        x: econ_n,
-        y: soc_n
-    };
+    let context = ChartContext { x, y };
 
     Content(
         ContentType::SVG,

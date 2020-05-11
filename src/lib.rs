@@ -8,7 +8,7 @@ extern crate rand;
 extern crate dotenv;
 
 use rocket::Rocket;
-use rocket_contrib::templates::Template;    
+use rocket_contrib::templates::Template;
 use rocket_contrib::serve::StaticFiles;
 
 mod db;
@@ -16,7 +16,7 @@ mod models;
 mod routes;
 mod config;
 
-pub fn wgafoy() -> Rocket {
+pub fn sauce() -> Rocket {
     dotenv::dotenv().ok();
     rocket::custom(config::from_env())
         .mount("/", routes![

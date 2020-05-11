@@ -10,6 +10,9 @@ pub fn from_env() -> Config {
         .parse::<u16>()
         .expect("PORT invalid in .env");
 
+    let address = env::var("ADDRESS")
+        .expect("ADDRESS invalid or missing in .env");
+
     let mut db_config = HashMap::new();
     let mut databases = HashMap::new();
     let database_url = env::var("DATABASE_URL")
@@ -20,6 +23,7 @@ pub fn from_env() -> Config {
 
     Config::build(environment)
         .environment(environment)
+        .address(address)
         .port(port)
         .extra("databases", databases)
         .finalize()

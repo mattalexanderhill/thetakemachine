@@ -22,19 +22,29 @@ impl fmt::Display for Answer {
 }
 
 impl Answer {
-    pub fn iter() -> impl Iterator<Item = Answer> {
+    pub fn iter() -> impl Iterator<Item = Self> {
         [Self::Agree, Self::Disagree, Self::DontKnow, Self::DontCare]
             .iter()
             .copied()
     }
 
-    pub fn from_str(s: &str) -> Result<Answer, ()>{
-        match s { 
+    pub fn from_str(s: &str) -> Result<Self, ()> {
+        match s {
             "1" => Ok(Self::Agree),
             "2" => Ok(Self::Disagree),
             "3" => Ok(Self::DontKnow),
             "4" => Ok(Self::DontCare),
             _ => Err(())
+        }
+    }
+
+    pub fn from_id(id: i32) -> Self {
+        match id {
+            1 => Self::Agree,
+            2 => Self::Disagree,
+            3 => Self::DontKnow,
+            4 => Self::DontCare,
+            _ => Self::DontKnow
         }
     }
 }

@@ -1,5 +1,5 @@
-use wgafoy;
+use sauce_code;
 
 fn main() {
-    wgafoy::wgafoy().launch();
+    sauce_code::sauce().launch();
 }

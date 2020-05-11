@@ -17,10 +17,6 @@ type AllColumns = (
     text,
 );
 
-pub fn count(conn: &PgConnection) -> QueryResult<i64> {
-    questions.count().get_result(conn)
-}
-
 pub type All = Select<questions, AllColumns>;
 
 pub fn all() -> All {

@@ -2,7 +2,17 @@
 
 <div class="content-wrapper">
   <h1 class="h-sub">Questions</h1>
+
+  <button style="display:inline;margin:0.4rem;" onclick="checkAll('1');">Agree All</button>
+  <button style="display:inline;margin:0.4rem;" onclick="checkAll('2');">Disagree All</button>
+  <button style="display:inline;margin:0.4rem;" onclick="checkAll('3');">Don't Know All</button>
+  <button style="display:inline;margin:0.4rem;" onclick="checkAll('4');">Don't Care All</button>
+
   <form action="/quiz/questions" method="POST">
+    <input
+      type="hidden"
+      name="session"
+      value=" {{~ session_id ~}}">
 {{#each questions as |q|}}
     <div class="qu pa-t">
       <div class="qu-t pa-t">
