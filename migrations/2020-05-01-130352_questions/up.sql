@@ -1,0 +1,5 @@
+CREATE TABLE questions (
+  id     INTEGER PRIMARY KEY,
+  number INTEGER NOT NULL,
+  text   VARCHAR NOT NULL
+);

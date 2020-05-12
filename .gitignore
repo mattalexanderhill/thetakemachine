@@ -6,4 +6,4 @@ Cargo.lock
 
 .env
 
-migrations/
+sql/
