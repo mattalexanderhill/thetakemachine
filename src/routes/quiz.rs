@@ -27,6 +27,17 @@ pub fn get_index() -> Template {
     Template::render("quiz/index", &context)
 }
 
+#[derive(Serialize)]
+struct AboutContext {
+    parent: &'static str,
+}
+
+#[get("/quiz/about")]
+pub fn get_about() -> Template {
+    let context = AboutContext { parent: "layout" };
+    Template::render("quiz/about", &context)
+}
+
 #[derive(Serialize, Debug)]
 struct QuestionsContextAnswer {
     id: i32,
@@ -144,21 +155,41 @@ pub fn post_questions(
     store_responses(&conn, &responses).expect("storage error");
 
     let redirect_uri = if form.session_id.is_empty() {
-        "/quiz/{}/results".to_owned()
+        "/quiz/_/results".to_owned()
     } else {
         format!("/quiz/{}/results", form.session_id)
     };
 
-    print!("{:?}", redirect_uri);
-
     Ok(Redirect::to(redirect_uri))
 }
+
+
+#[derive(Debug, Serialize)]
+struct QuadrantMessageContext {
+    show_blue: bool,
+    show_green: bool,
+    show_red: bool,
+    show_yellow: bool,
+}
+
+impl Default for QuadrantMessageContext {
+    fn default() -> QuadrantMessageContext {
+        QuadrantMessageContext {
+            show_blue: false,
+            show_green: false,
+            show_red: false,
+            show_yellow: false,
+        }
+    }
+}
+
 
 #[derive(Debug, Serialize)]
 struct ResultsContext {
     x: String,
     y: String,
     parent: &'static str,
+    message: QuadrantMessageContext,
 }
 
 #[get("/quiz/<session>/results")]
@@ -210,10 +241,20 @@ pub fn get_results(conn: Conn, session: String) -> Result<Template, &'static str
         y.to_string()
     };
 
+    let mut message = QuadrantMessageContext::default();
+
+    match (x < 0, y < 0) {
+        (false, false) => message.show_blue = true,
+        (false, true)  => message.show_yellow = true,
+        (true, true)   => message.show_green = true,
+        (true, false)  => message.show_red = true,
+    };
+
     let context = ResultsContext {
         x: x_str,
         y: y_str,
-        parent: "layout"
+        parent: "layout",
+        message,
     };
 
     Ok(Template::render("quiz/results", &context))

@@ -12,6 +12,10 @@
   font-family:      athelas, georgia, serif;
 }
 
+.nav-item {
+  padding-right: 2rem;
+}
+
 .quote {
   background: #eee;
   border:     1px solid #ccc;

@@ -23,6 +23,7 @@ pub fn sauce() -> Rocket {
             routes::get_index,
             routes::get_favicon,
             routes::quiz::get_index,
+            routes::quiz::get_about,
             routes::quiz::get_questions,
             routes::quiz::get_chart,
             routes::quiz::get_results,
