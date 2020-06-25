@@ -186,6 +186,8 @@ impl Default for QuadrantMessageContext {
 
 #[derive(Debug, Serialize)]
 struct ResultsContext {
+    xFormatted: String,
+    yFormatted: String,
     x: String,
     y: String,
     parent: &'static str,
@@ -251,6 +253,8 @@ pub fn get_results(conn: Conn, session: String) -> Result<Template, &'static str
     };
 
     let context = ResultsContext {
+        xFormatted: x.to_string(),
+        yFormatted: y.to_string(),
         x: x_str,
         y: y_str,
         parent: "layout",
