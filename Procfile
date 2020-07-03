@@ -1,2 +1,2 @@
-web: ROCKET_PORT=$PORT ROCKET_KEEP_ALIVE=0 ./target/release/the-take-machine
+web: ROCKET_PORT=$PORT ROCKET_KEEP_ALIVE=0 ./target/release/thetakemachine
 release: ./target/release/diesel migration run
