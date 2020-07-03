@@ -6,13 +6,12 @@ use diesel::sql_types::*;
 use diesel::insert_into;
 
 use diesel::backend::Backend;
-use diesel::pg::{Pg, PgConnection};
+use diesel::pg::PgConnection;
 
 use diesel::deserialize::{self, FromSql};
 use diesel::serialize::{self, ToSql, Output};
 
 use crate::db::schema::demographics;
-use crate::db::schema::demographics::SqlType;
 
 
 #[derive(Debug, Clone, Copy, AsExpression, FromSqlRow)]

@@ -399,7 +399,7 @@ pub fn post_demographics(
         ethics: form.ethics,
     };
 
-    store_demographic(&conn, &dem);
+    store_demographic(&conn, &dem).expect("storage error");
 
     let redirect_uri = if form.session_id.is_empty() {
         "/quiz/_/results".to_owned()
