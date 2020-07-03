@@ -16,7 +16,7 @@ mod models;
 mod routes;
 mod config;
 
-pub fn sauce() -> Rocket {
+pub fn ttm() -> Rocket {
     dotenv::dotenv().ok();
     rocket::custom(config::from_env())
         .mount("/", routes![
