@@ -25,7 +25,7 @@ fn test_questions_all() {
 
     let questions = questions::load_all(&conn, None).unwrap();
 
-    assert_eq!(questions.len(), 57);
+    assert_eq!(questions.len(), 46);
 }
 
 #[test]

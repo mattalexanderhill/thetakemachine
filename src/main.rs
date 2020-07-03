@@ -1,5 +1,5 @@
-use sauce_code;
+use thetakemachine::ttm;
 
 fn main() {
-    sauce_code::sauce().launch();
+    ttm().launch();
 }

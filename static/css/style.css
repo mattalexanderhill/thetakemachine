@@ -81,6 +81,7 @@
 }
 
 .bold {
+  font-size: 1.5rem;
   font-weight: bold;
 }
 
@@ -89,10 +90,18 @@
     width:   45%;
 }
 
+.qu-a-w {
+    display: inline-block;
+    width:   90%;
+}
+
 @media screen and (min-width: 45em) {
   .qu-a {
-    display: inline-block;
-    width:   22%;
+    width: 22%;
+  }
+
+  .qu-a-w {
+    width: 45%;
   }
 }
 

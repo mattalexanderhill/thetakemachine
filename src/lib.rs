@@ -16,7 +16,7 @@ mod models;
 mod routes;
 mod config;
 
-pub fn sauce() -> Rocket {
+pub fn ttm() -> Rocket {
     dotenv::dotenv().ok();
     rocket::custom(config::from_env())
         .mount("/", routes![
@@ -28,6 +28,8 @@ pub fn sauce() -> Rocket {
             routes::quiz::get_chart,
             routes::quiz::get_results,
             routes::quiz::post_questions,
+            routes::quiz::get_demographics,
+            routes::quiz::post_demographics,
         ])
         .register(catchers![
             routes::catch::not_found,

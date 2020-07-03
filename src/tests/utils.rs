@@ -5,14 +5,14 @@ use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use once_cell::sync::OnceCell;
 use std::env;
-use crate::sauce;
 
+use crate::ttm;
 
 pub fn test_client() -> &'static Client {
     static INSTANCE: OnceCell<Client> = OnceCell::new();
     INSTANCE.get_or_init(|| {
-        let sauce = sauce();
-        Client::new(sauce).expect("valid rocket instance")
+        let ttm = ttm();
+        Client::new(ttm).expect("valid rocket instance")
     })
 }
 
