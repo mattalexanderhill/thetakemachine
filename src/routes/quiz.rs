@@ -11,6 +11,8 @@ use crate::models::questions::load_all;
 use crate::models::answers::Answer;
 use crate::models::responses::{Response, store_responses};
 use crate::models::response_scores::load_from_session;
+use crate::models::demographics::{self, Gender, AgeGroup,
+    Politics, Ethics, Demographic, store_demographic};
 use crate::db::Conn;
 
 
@@ -130,8 +132,6 @@ impl<'a> FromForm<'a> for QuestionsForm {
             }
         }
 
-        if session_id.is_empty() { session_id.push_str("_"); }
-
         Ok(QuestionsForm { session_id, question_answers })
     }
 }
@@ -155,9 +155,9 @@ pub fn post_questions(
     store_responses(&conn, &responses).expect("storage error");
 
     let redirect_uri = if form.session_id.is_empty() {
-        "/quiz/_/results".to_owned()
+        "/quiz/_/demographics".to_owned()
     } else {
-        format!("/quiz/{}/results", form.session_id)
+        format!("/quiz/{}/demographics", form.session_id)
     };
 
     Ok(Redirect::to(redirect_uri))
@@ -195,7 +195,7 @@ struct ResultsContext {
 }
 
 #[get("/quiz/<session>/results")]
-pub fn get_results(conn: Conn, session: String) -> Result<Template, &'static str> {
+pub fn get_results(conn: Conn, session: String) -> Result<Template, Status> {
     let mut result: (i64, i64) = (0, 0);
 
     if session != "_" {
@@ -253,8 +253,8 @@ pub fn get_results(conn: Conn, session: String) -> Result<Template, &'static str
     };
 
     let context = ResultsContext {
-        x_fmt: x.to_string(),
-        y_fmt: y.to_string(),
+        x_fmt: format!("{:.1}", x as f32),
+        y_fmt: format!("{:.1}", y as f32),
         x: x_str,
         y: y_str,
         parent: "layout",
@@ -305,4 +305,107 @@ pub fn get_chart(x_str: String, y_str: String) -> Content<Template> {
         ContentType::SVG,
         Template::render("quiz/chart", &context)
     )
+}
+
+#[derive(Debug, Serialize)]
+struct DemographicsOption {
+    id: i32,
+    text: String,
+}
+
+#[derive(Debug, Serialize)]
+struct DemographicsContext {
+    session_id: String,
+    genders: Vec<DemographicsOption>,
+    age_groups: Vec<DemographicsOption>,
+    politics: Vec<DemographicsOption>,
+    ethics: Vec<DemographicsOption>,
+    parent: &'static str,
+}
+
+#[get("/quiz/<session_id>/demographics")]
+pub fn get_demographics(session_id: String) -> Result<Template, Status> {
+    let context = DemographicsContext {
+        session_id: session_id,
+        genders: demographics::GENDER_OPTIONS.iter().map(|o| DemographicsOption{id: *o as i32, text: format!("{}", o) }).collect(),
+        age_groups: demographics::AGE_GROUP_OPTIONS.iter().map(|o| DemographicsOption{id: *o as i32, text: format!("{}", o) }).collect(),
+        politics: demographics::POLITICS_OPTIONS.iter().map(|o| DemographicsOption{id: *o as i32, text: format!("{}", o) }).collect(),
+        ethics: demographics::ETHICS_OPTIONS.iter().map(|o| DemographicsOption{id: *o as i32, text: format!("{}", o) }).collect(),
+        parent: "layout",
+    };
+
+    Ok(Template::render("quiz/demographics", &context))
+}
+
+#[derive(Debug)]
+pub struct DemographicsForm {
+    session_id: String,
+    gender: Option<Gender>,
+    age_group: Option<AgeGroup>,
+    politics: Option<Politics>,
+    ethics: Option<Ethics>,
+}
+
+impl<'a> FromForm<'a> for DemographicsForm {
+    type Error = &'static str;
+
+    fn from_form(items: &mut FormItems<'a>, _strict: bool) -> Result<DemographicsForm, &'static str> {
+        let mut form = DemographicsForm {
+            session_id: String::with_capacity(SESSION_ID_LEN.into()),
+            gender: None,
+            age_group: None,
+            politics: None,
+            ethics: None,
+        };
+
+        for item in items {
+            let (key, value) = item.key_value_decoded();
+
+            match key.as_str() {
+                "session" => {
+                    form.session_id.push_str(&value.trim());
+                },
+                "gender" => {
+                    form.gender = Gender::from_str(&value).ok();
+                },
+                "age" => {
+                    form.age_group = AgeGroup::from_str(&value).ok();
+                },
+                "politics" => {
+                    form.politics = Politics::from_str(&value).ok();
+                },
+                "ethics" => {
+                    form.ethics = Ethics::from_str(&value).ok();
+                },
+                _ => {}
+            }
+        }
+
+        Ok(form)
+    }
+}
+
+#[post("/quiz/demographics", data="<form>")]
+pub fn post_demographics(
+    conn: Conn,
+    form: Form<DemographicsForm>
+) -> Result<Redirect, &'static str> {
+
+    let dem = Demographic {
+        session_id: form.session_id.clone(),
+        gender: form.gender,
+        age_group: form.age_group,
+        politics: form.politics,
+        ethics: form.ethics,
+    };
+
+    store_demographic(&conn, &dem);
+
+    let redirect_uri = if form.session_id.is_empty() {
+        "/quiz/_/results".to_owned()
+    } else {
+        format!("/quiz/{}/results", form.session_id)
+    };
+
+    Ok(Redirect::to(redirect_uri))
 }

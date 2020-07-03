@@ -28,6 +28,8 @@ pub fn ttm() -> Rocket {
             routes::quiz::get_chart,
             routes::quiz::get_results,
             routes::quiz::post_questions,
+            routes::quiz::get_demographics,
+            routes::quiz::post_demographics,
         ])
         .register(catchers![
             routes::catch::not_found,

@@ -1,0 +1,135 @@
+{{#*inline "page"}}
+
+<div class="content-wrapper">
+  <h1 class="h-sub">Who are you?</h1>
+  <p>
+Please answer these basic demographic questions. We are collecting this information to write about any interesting trends we find in the results. If you would rather not share this information with us, please select prefer not to say for each of the questions below.
+  </p>
+  <form action="/quiz/demographics" method="POST">
+    <input
+      type="hidden"
+      name="session"
+      value=" {{~ session_id ~}}">
+
+    <div class="qu pa-t">
+      <div class="qu-t pa-t">
+        Gender - how do you identify?
+      </div>
+      <div class="pa-t">
+  {{#each genders as |gender|}}
+        <div class="qu-a-w">
+          <input
+            required
+            type="radio"
+            id="gender_{{gender.id}}"
+            value="{{gender.id}}"
+            name="gender">
+          <label for="gender_{{gender.id}}">{{gender.text}}</label>
+        </div>
+  {{/each}}
+        <div class="qu-a-w">
+          <input
+            required
+            type="radio"
+            id="gender_none"
+            value=""
+            name="gender">
+          <label for="gender_none">Prefer not to say</label>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="qu pa-t">
+      <div class="qu-t pa-t">
+        Which age group do you belong to?
+      </div>
+      <div class="pa-t">
+  {{#each age_groups as |age_group|}}
+        <div class="qu-a-w">
+          <input
+            required
+            type="radio"
+            id="age_{{~ age_group.id ~}}"
+            value="{{~ age_group.id ~}}"
+            name="age">
+          <label for="age_{{~ age_group.id ~}}">{{ age_group.text }}</label>
+        </div>
+  {{/each}}
+        <div class="qu-a-w">
+          <input
+            required
+            type="radio"
+            id="age_none"
+            value=""
+            name="age">
+          <label for="age_none">Prefer not to say</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="qu pa-t">
+      <div class="qu-t pa-t">
+        In the most recent election, which party did you vote for?
+      </div>
+      <div class="pa-t">
+  {{#each politics as |politic|}}
+        <div class="qu-a-w">
+          <input
+            required
+            type="radio"
+            id="politics_{{~ politic.id ~}}"
+            value="{{~ politic.id ~}}"
+            name="politics">
+          <label for="politics_{{~ politic.id ~}}">{{ politic.text }}</label>
+        </div>
+  {{/each}}
+        <div class="qu-a-w">
+          <input
+            required
+            type="radio"
+            id="politics_none"
+            value=""
+            name="politics">
+          <label for="politics_none">Prefer not to say</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="qu pa-t">
+      <div class="qu-t pa-t">
+        In the <a href="https://en.wikipedia.org/wiki/Prisoner%27s_dilemma">prisoner's dilemma</a>, what would you do?
+      </div>
+      <div class="pa-t">
+  {{#each ethics as |ethic|}}
+        <div class="qu-a-w">
+          <input
+            required
+            type="radio"
+            id="ethics_{{~ ethic.id ~}}"
+            value="{{~ ethic.id ~}}"
+            name="ethics">
+          <label for="ethics_{{~ ethic.id ~}}">{{ ethic.text }}</label>
+        </div>
+  {{/each}} 
+        <div class="qu-a-w">
+          <input
+            required
+            type="radio"
+            id="ethics_none"
+            value=""
+            name="ethics">
+          <label for="ethics_none">Prefer not to say</label>
+        </div>
+      </div>
+    </div>
+
+
+  <button class="qu-b" type="submit">
+    Submit
+  </button>
+  </form>
+</div>
+
+{{/inline}}
+{{~> (parent)~}}
