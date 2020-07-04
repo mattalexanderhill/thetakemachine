@@ -82,42 +82,45 @@ where
 #[derive(Debug, Clone, Copy, AsExpression, FromSqlRow)]
 #[sql_type="Integer"]
 pub enum AgeGroup {
-  LessThan25 = 1,
-  From25to34 = 2,
-  From35to44 = 3,
-  From45to54 = 5,
-  From55to64 = 6,
-  MoreThan65 = 7,
+    LessThan18 = 1,
+    From18to25 = 2,
+    From25to34 = 3,
+    From35to44 = 5,
+    From45to54 = 6,
+    From55to64 = 7,
+    MoreThan65 = 8,
 }
 
-pub const AGE_GROUP_OPTIONS: [AgeGroup; 6] = [
-      AgeGroup::LessThan25,
-      AgeGroup::From25to34,
-      AgeGroup::From35to44,
-      AgeGroup::From45to54,
-      AgeGroup::From55to64,
-      AgeGroup::MoreThan65,
+pub const AGE_GROUP_OPTIONS: [AgeGroup; 7] = [
+        AgeGroup::LessThan18,
+        AgeGroup::From18to25,
+        AgeGroup::From25to34,
+        AgeGroup::From35to44,
+        AgeGroup::From45to54,
+        AgeGroup::From55to64,
+        AgeGroup::MoreThan65,
 ];
 
 impl AgeGroup {
     pub fn from_str(s: &str) -> Result<Self, ()> {
         match s {
-            "1" => Ok(Self::LessThan25),
-            "2" => Ok(Self::From25to34),
-            "3" => Ok(Self::From35to44),
-            "5" => Ok(Self::From45to54),
-            "6" => Ok(Self::From55to64),
-            "7" => Ok(Self::MoreThan65),
+            "1" => Ok(Self::LessThan18),
+            "2" => Ok(Self::From18to25),
+            "3" => Ok(Self::From25to34),
+            "5" => Ok(Self::From35to44),
+            "6" => Ok(Self::From45to54),
+            "7" => Ok(Self::From55to64),
+            "8" => Ok(Self::MoreThan65),
             _ => Err(()),
         }
     }
 }
 
-
 impl fmt::Display for AgeGroup {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", match self {
-            Self::LessThan25 => "<25",
+            Self::LessThan18 => "<18",
+            Self::From18to25 => "18-24",
             Self::From25to34 => "25-34",
             Self::From35to44 => "35-44",
             Self::From45to54 => "45-54",
@@ -134,12 +137,13 @@ where
 {
     fn to_sql<W: io::Write>(&self, out: &mut Output<W, DB>) -> serialize::Result {
         let v = match *self {
-            Self::LessThan25 => 1,
-            Self::From25to34 => 2,
-            Self::From35to44 => 3,
-            Self::From45to54 => 5,
-            Self::From55to64 => 6,
-            Self::MoreThan65 => 7,
+            Self::LessThan18 => 1,
+            Self::From18to25 => 2,
+            Self::From25to34 => 3,
+            Self::From35to44 => 5,
+            Self::From45to54 => 6,
+            Self::From55to64 => 7,
+            Self::MoreThan65 => 8,
         };
         v.to_sql(out)
     }
@@ -152,12 +156,13 @@ where
 {
     fn from_sql(bytes: Option<&DB::RawValue>) -> deserialize::Result<Self> {
         match i32::from_sql(bytes)? {
-            1 => Ok(Self::LessThan25),
-            2 => Ok(Self::From25to34),
-            3 => Ok(Self::From35to44),
-            5 => Ok(Self::From45to54),
-            6 => Ok(Self::From55to64),
-            7 => Ok(Self::MoreThan65),
+            1 => Ok(Self::LessThan18),
+            2 => Ok(Self::From18to25),
+            3 => Ok(Self::From25to34),
+            5 => Ok(Self::From35to44),
+            6 => Ok(Self::From45to54),
+            7 => Ok(Self::From55to64),
+            8 => Ok(Self::MoreThan65),
             x => Err(format!("Unrecognized age_group_id {}", x).into()),
         }
     }
