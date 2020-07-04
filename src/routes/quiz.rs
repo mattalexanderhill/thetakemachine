@@ -253,8 +253,8 @@ pub fn get_results(conn: Conn, session: String) -> Result<Template, Status> {
     };
 
     let context = ResultsContext {
-        x_fmt: format!("{:.1}", x as f32),
-        y_fmt: format!("{:.1}", y as f32),
+        x_fmt: format!("{:.2}", x as f32 / 100.0),
+        y_fmt: format!("{:.2}", y as f32 / 100.0),
         x: x_str,
         y: y_str,
         parent: "layout",
