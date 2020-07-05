@@ -7,7 +7,7 @@ CREATE VIEW response_scores (
   y
 )
 AS SELECT
-  ROW_NUMBER() OVER (ORDER BY r.at),
+  1,
   r.session_id,
   r.question_id,
   r.answer_id,
