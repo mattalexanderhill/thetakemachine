@@ -27,7 +27,7 @@ type AllColumns = (
 );
 
 impl Queryable<SqlType, Pg> for ResponseScore {
-    type Row = (i64, String, i32, i32, Option<i32>, Option<i32>);
+    type Row = (i32, String, i32, i32, Option<i32>, Option<i32>);
 
     fn build(row: Self::Row) -> Self {
         ResponseScore {
