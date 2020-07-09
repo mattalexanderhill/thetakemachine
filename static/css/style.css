@@ -12,8 +12,12 @@
   font-family:      athelas, georgia, serif;
 }
 
-.link {
+.nav {
   padding-right: 2rem;
+}
+
+.nav-r {
+  float: right;
 }
 
 .quote {

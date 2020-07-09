@@ -40,6 +40,17 @@ pub fn get_about() -> Template {
     Template::render("quiz/about", &context)
 }
 
+#[derive(Serialize)]
+struct PrivacyContext {
+    parent: &'static str,
+}
+
+#[get("/quiz/privacy")]
+pub fn get_privacy() -> Template {
+    let context = PrivacyContext { parent: "layout" };
+    Template::render("quiz/privacy", &context)
+}
+
 #[derive(Serialize, Debug)]
 struct QuestionsContextAnswer {
     id: i32,
@@ -136,12 +147,16 @@ impl<'a> FromForm<'a> for QuestionsForm {
     }
 }
 
-
 #[post("/quiz/questions", data="<form>")]
 pub fn post_questions(
     conn: Conn,
     form: Form<QuestionsForm>
 ) -> Result<Redirect, &'static str> {
+    if form.session_id.is_empty() {
+        let redirect_uri = "/quiz";
+        return Ok(Redirect::to(redirect_uri));
+    }
+
     let responses: Vec<Response> = form
         .question_answers
         .iter()
@@ -152,17 +167,17 @@ pub fn post_questions(
         })
         .collect();
 
-    store_responses(&conn, &responses).expect("storage error");
-
-    let redirect_uri = if form.session_id.is_empty() {
-        "/quiz/_/demographics".to_owned()
-    } else {
-        format!("/quiz/{}/demographics", form.session_id)
-    };
-
-    Ok(Redirect::to(redirect_uri))
+    match store_responses(&conn, &responses) {
+        Ok(_) => {
+            let redirect_uri = format!("/quiz/{}/demographics", form.session_id);
+            Ok(Redirect::to(redirect_uri))
+        },
+        Err(_) => {
+            let redirect_uri = format!("/quiz/{}/results", form.session_id);
+            Ok(Redirect::to(redirect_uri))
+        }
+    }
 }
-
 
 #[derive(Debug, Serialize)]
 struct QuadrantMessageContext {
@@ -390,6 +405,10 @@ pub fn post_demographics(
     conn: Conn,
     form: Form<DemographicsForm>
 ) -> Result<Redirect, &'static str> {
+    if form.session_id.is_empty() {
+        let redirect_uri = "/quiz";
+        return Ok(Redirect::to(redirect_uri));
+    }
 
     let dem = Demographic {
         session_id: form.session_id.clone(),
@@ -399,13 +418,14 @@ pub fn post_demographics(
         ethics: form.ethics,
     };
 
-    store_demographic(&conn, &dem).expect("storage error");
-
-    let redirect_uri = if form.session_id.is_empty() {
-        "/quiz/_/results".to_owned()
-    } else {
-        format!("/quiz/{}/results", form.session_id)
-    };
-
-    Ok(Redirect::to(redirect_uri))
+    match store_demographic(&conn, &dem) {
+        Ok(_) => {
+            let redirect_uri = format!("/quiz/{}/results", form.session_id);
+            return Ok(Redirect::to(redirect_uri));
+        },
+        Err(_) => {
+            let redirect_uri = format!("/quiz/{}/results", form.session_id);
+            return Ok(Redirect::to(redirect_uri));
+        }
+    }
 }

@@ -5,3 +5,5 @@ CREATE TABLE responses (
   answer_id   INTEGER NOT NULL REFERENCES answers(id),
   at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX responses_session ON responses ( session_id ASC );
