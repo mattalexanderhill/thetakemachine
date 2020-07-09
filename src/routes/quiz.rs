@@ -40,6 +40,17 @@ pub fn get_about() -> Template {
     Template::render("quiz/about", &context)
 }
 
+#[derive(Serialize)]
+struct PrivacyContext {
+    parent: &'static str,
+}
+
+#[get("/quiz/privacy")]
+pub fn get_privacy() -> Template {
+    let context = PrivacyContext { parent: "layout" };
+    Template::render("quiz/privacy", &context)
+}
+
 #[derive(Serialize, Debug)]
 struct QuestionsContextAnswer {
     id: i32,
@@ -141,6 +152,11 @@ pub fn post_questions(
     conn: Conn,
     form: Form<QuestionsForm>
 ) -> Result<Redirect, &'static str> {
+    if form.session_id.is_empty() {
+        let redirect_uri = "/quiz";
+        return Ok(Redirect::to(redirect_uri));
+    }
+
     let responses: Vec<Response> = form
         .question_answers
         .iter()
@@ -150,11 +166,6 @@ pub fn post_questions(
             answer_id: qa.answer as i32,
         })
         .collect();
-
-    if form.session_id.is_empty() {
-        let redirect_uri = "/quiz/_/results";
-        return Ok(Redirect::to(redirect_uri));
-    }
 
     match store_responses(&conn, &responses) {
         Ok(_) => {
