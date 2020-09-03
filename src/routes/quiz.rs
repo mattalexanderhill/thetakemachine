@@ -41,6 +41,17 @@ pub fn get_about() -> Template {
 }
 
 #[derive(Serialize)]
+struct AnalysisContext {
+    parent: &'static str,
+}
+
+#[get("/quiz/analysis")]
+pub fn get_analysis() -> Template {
+    let context = AnalysisContext { parent: "layout" };
+    Template::render("quiz/analysis", &context)
+}
+
+#[derive(Serialize)]
 struct PrivacyContext {
     parent: &'static str,
 }
