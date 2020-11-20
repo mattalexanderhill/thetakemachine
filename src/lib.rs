@@ -24,6 +24,7 @@ pub fn ttm() -> Rocket {
             routes::get_favicon,
             routes::quiz::get_index,
             routes::quiz::get_about,
+            routes::quiz::get_analysis,
             routes::quiz::get_privacy,
             routes::quiz::get_questions,
             routes::quiz::get_chart,
