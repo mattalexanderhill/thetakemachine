@@ -2,6 +2,7 @@ use rocket::response::Redirect;
 
 pub mod catch;
 pub mod quiz;
+pub mod xmas;
 
 #[get("/")]
 pub fn get_index() -> Redirect {

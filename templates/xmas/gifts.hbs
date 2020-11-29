@@ -1,0 +1,148 @@
+{{#*inline "page"}}
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  version="1.1"
+  id="xmas"
+  x="0"
+  y="0"
+  viewBox="0 0 1280 720"
+  xml:space="preserve"
+  height="100%"
+  width="100%">
+  <style>
+    .textbox {
+        fill: cornflowerblue;
+    }
+    .ttl {
+        fill: white;
+        font-family: athelas, georgia, serif;
+        font-size:   48px;
+        font-style:  bold;
+    }
+    .subttl {
+        fill: white;
+        font-family: athelas, georgia, serif;
+        font-size:   24px;
+        font-style:  normal;
+    }
+    .subttl > tspan {
+        text-decoration: underline;
+    }
+    .bkgrd {
+      fill: lightblue;
+    }
+    .floor {
+      fill: rosybrown;
+    }
+    .shadow {
+      fill:    black;
+      opacity: 0.2;
+    }
+    .trunk {
+      fill: sienna;
+    }
+    .star {
+      fill: yellow;
+    }
+    .leaf:nth-child(odd) {
+      fill: #6A9940;
+    }
+    .leaf:nth-child(even) {
+      fill: #94C83F
+    }
+    .bauble:nth-child(odd) {
+      fill: blue;
+    }
+    .bauble:nth-child(even) {
+      fill: red;
+    }
+    .lights > circle {
+      fill: lightgoldenrodyellow;
+    }
+    .lights > path {
+      fill: none;
+      stroke: powderblue;
+      stroke-width: 3;
+    } 
+  </style>
+  <defs>
+    <path id="leaf" d="
+      M70,0
+      Q45,35,0,60
+      q15,6,25,5
+      q-6,9,-8,12
+      q15,2,25,0
+      q-2,9,-2,12
+      q15,-2,22,-5
+      q6,12,5,10
+      q6,-12,5,-10
+      q15,5,22,5
+      q-2,-4,-2,-12
+      q15,2,25,0
+      q-6,-6,-8,-12
+      q15,0,25,-5
+      Q95,35,70,0
+    ">
+    <g id="candycane">
+      <path d="M10,20q10,-20,18,-5q2,10,0,30" stroke-width="4" stroke="white" stroke-width="2" fill="none"></path>
+      <path d="M10,20q10,-20,18,-5q2,10,0,30" stroke-width="4" stroke="red" stroke-width="2" fill="none" stroke-dasharray="4"></path>
+    </g>
+  </defs>
+  <rect id="bkgrd" class="bkgrd" x="0" y="0" width="100%" height="100%"></rect>
+  <rect id="floor" class="floor" x="0" y="530" width="100%" height="220"></rect>
+  <g id="tree">
+    <ellipse id="shadow" class="shadow" cx="635" cy="570" rx="90" ry="20"></ellipse>
+    <path id="trunk" class="trunk" d="M590,575l10,-45l60,0l10,45Q630,585,590,575"></path>
+    <g id="leafs" class="leafs">
+      <use href="#leaf" class="leaf" transform="scale(2.6) translate(175, 120)"></use>
+      <use href="#leaf" class="leaf" transform="scale(2.2) translate(219, 120)"></use>
+      <use href="#leaf" class="leaf" transform="scale(1.8) translate(282, 120)"></use>
+      <use href="#leaf" class="leaf" transform="scale(1.4) translate(383, 130)"></use>
+      <use href="#leaf" class="leaf" transform="scale(1)   translate(565, 160)"></use>
+    </g>
+    <g id="lights1" class="lights">
+      <path d="M537,300Q636,330,738,312" fill="#F05E4B"></path>
+      <circle cx="569" cy="312" r="6"></circle>
+      <circle cx="647" cy="328" r="6"></circle>
+      <circle cx="705" cy="322" r="6"></circle>
+    </g>
+    <g id="lights2" class="lights">
+      <path d="M510,379Q645,465,755,385"></path>
+      <circle cx="531" cy="403" r="6"></circle>
+      <circle cx="596" cy="427" r="6"></circle>
+      <circle cx="674" cy="428" r="6"></circle>
+      <circle cx="728" cy="413" r="6"></circle>
+    </g>
+    <g id="lights3" class="lights">
+      <path d="M495,445Q635,525,775,450"></path>
+      <circle cx="525" cy="472" r="6"></circle>
+      <circle cx="591" cy="494" r="6"></circle>
+      <circle cx="657" cy="494" r="6"></circle>
+      <circle cx="741" cy="472" r="6"></circle>
+    </g>
+    <g id="baubles">
+      <circle class="bauble" cx="594" cy="347" r="13"></circle>
+      <circle class="bauble" cx="642" cy="218" r="13"></circle>
+      <circle class="bauble" cx="757" cy="469" r="13"></circle>
+      <circle class="bauble" cx="698" cy="345" r="13"></circle>
+      <circle class="bauble" cx="547" cy="500" r="13"></circle>
+      <circle class="bauble" cx="640" cy="466" r="13"></circle>
+    </g>
+    <g id="candycanes">
+      <use href="#candycane" transform="translate(580, 240)  rotate(0)"></use>
+      <use href="#candycane" transform="translate(670, 350) scale(-1, 1) rotate(10)"></use>
+      <use href="#candycane" transform="translate(565, 440) rotate(20)"></use>
+    </g>
+    <polygon id="star" class="star" points="638,108,647,129,669,134,652,148,654,171,635,159,614,168,619,146,604,129,627,127"></polygon>
+    <rect class="textbox" x="10" y="10" width="430" height="190" rx="15"></rect>
+    <text class="ttl" x="20" y="70" textLength="400">Merry Christmas!</text>
+{{ #if giftee }}
+    <text class="subttl" x="20" y="170" textLength="400">You should buy a gift for: <tspan>{{ giftee }}</tspan></text>
+{{ /if }}
+  </g>
+</svg>
+
+{{/inline}}
+{{~> (parent)~}}
