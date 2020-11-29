@@ -32,6 +32,7 @@ pub fn ttm() -> Rocket {
             routes::quiz::post_questions,
             routes::quiz::get_demographics,
             routes::quiz::post_demographics,
+            routes::xmas::get_xmas,
         ])
         .register(catchers![
             routes::catch::not_found,
